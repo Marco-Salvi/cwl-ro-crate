@@ -23,6 +23,7 @@ By using both CWL and RO-Crate (which are already widely adopted in the workflow
 ---
 
 ## Example: DTC52 Workflow
+This repository contains an early example of a workflow represented using CWL and RO-Crate. The CWL workflow is just an example, it is not 100% accurate. The RO-Crate is missing a lot of metadata, it is just an example to show the global structure.
 
 ### Workflow Components
 An example of our CWL + RO-Crate workflow includes the following files:
@@ -131,7 +132,6 @@ Each step defines its inputs, outputs, and the class of operation it performs. T
 In transitioning from the spreadsheet-based workflow representation to CWL + RO-Crate, several key issues must be addressed:
 
 ### 1. Versioning of Updated Datasets
-
 During workflow execution, some datasets may be updated, altering their content. However, in the spreadsheet-based representation, there is no tracking of which specific version of the updated dataset is used at each step.
 
 To address this, we could implement a dataset versioning strategy, where each updated dataset is assigned a new version identifier. Several approaches can be considered:
@@ -144,15 +144,19 @@ To address this, we could implement a dataset versioning strategy, where each up
   
 - **Hybrid approach**: The dataset ID contains meaningful information about both its version and its provenance, reducing the need for additional metadata while maintaining clarity about dataset lineage.
 
+### 2. Direct Relationships Between SSs and STs
+In the spreadsheet-based workflow, certain SSs and STs may have direct relationships that do not involve specific DTs as input or output. These connections often represent small pieces of information being passed between steps, so explicit datasets were not initially defined in the spreadsheet.
 
-### 2. Cyclic Dependencies
+However, CWL requires dependencies between workflow steps to be defined through data inputs and outputs. To accommodate this, we can either introduce "temporary" datasets in the spreadsheets to represent these relationships, or we can define ad-hoc connections between SSs and STs. This approach would allow for the automatic generation of "temporary" dependencies when converting the workflow to CWL, without modifying the original spreadsheets.
+
+### 3. Cyclic Dependencies
 CWL workflows are modeled as **Acyclic Directed Graphs**, meaning that cycles (where a step depends on itself, directly or indirectly) are not allowed. In the spreadsheets, some cyclic dependencies appear, likely due to:
 - Possible errors in the description
 - Usage of updated dataset using the original dataset's name
 
 These cycles must be corrected before the workflow can be properly represented in CWL.
 
-### 3. "Useless" Steps
+### 4. "Useless" Steps
 Some steps in the spreadsheets consist only of manually gathering data, which could be simplified:
 - These steps can be removed and replaced by global CWL inputs.
 - Some steps lack inputs, outputs, or both, indicating potential errors in the spreadsheet that should be addressed before conversion.
